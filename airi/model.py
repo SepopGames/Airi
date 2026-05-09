@@ -3,7 +3,7 @@ import socket
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-from airi.config import MODEL_PROVIDER, OLLAMA_BASE_URL, OLLAMA_MODEL
+from airi.config import MODEL_PROVIDER, OLLAMA_BASE_URL, OLLAMA_MODEL, OLLAMA_OPTIONS
 
 
 def generate_text(prompt: str) -> str:
@@ -14,6 +14,7 @@ def generate_text(prompt: str) -> str:
     data = json.dumps(
         {
             "model": OLLAMA_MODEL,
+            "options": OLLAMA_OPTIONS,
             "prompt": prompt,
             "stream": False,
             "think": False,

@@ -2,15 +2,28 @@ from airi.brain import generate_response
 from airi.memory import init_db
 
 
-init_db()
+EXIT_COMMANDS = {"exit", "quit", "выход", "/exit", "/quit"}
 
-print("Привет! Я Airi.")
 
-while True:
-    user_message = input("> ")
+def main() -> None:
+    init_db()
 
-    if user_message.strip().lower() in ["exit", "quit", "выход"]:
-        break
+    print("Привет! Я Airi.")
+    print("Напиши /exit, чтобы выйти.")
 
-    response = generate_response(user_message)
-    print(response)
+    while True:
+        user_message = input("> ").strip()
+
+        if not user_message:
+            continue
+
+        if user_message.lower() in EXIT_COMMANDS:
+            print("Airi: Ладно, отключаюсь. Но я рядом, если что.")
+            break
+
+        response = generate_response(user_message)
+        print(f"Airi: {response}")
+
+
+if __name__ == "__main__":
+    main()
