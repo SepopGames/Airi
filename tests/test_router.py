@@ -39,6 +39,18 @@ class TestRouter(unittest.TestCase):
         self.assertEqual(route.intent, Intent.CHAT)
         self.assertEqual(route.content, "объясни что такое нейросеть")
 
+    def test_route_search_memory(self):
+        route = route_message("/search Саша")
+
+        self.assertEqual(route.intent, Intent.SEARCH_MEMORY)
+        self.assertEqual(route.content, "Саша")
+
+    def test_route_forget_memory(self):
+        route = route_message("/forget 3")
+
+        self.assertEqual(route.intent, Intent.FORGET_MEMORY)
+        self.assertEqual(route.content, "3")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -7,6 +7,8 @@ class Intent(str, Enum):
     SHOW_MEMORY = "show_memory"
     CLEAR_HISTORY = "clear_history"
     CHAT = "chat"
+    SEARCH_MEMORY = "search_memory"
+    FORGET_MEMORY = "forget_memory"
 
 
 @dataclass
@@ -64,5 +66,13 @@ def route_message(message: str) -> RouteResult:
     if lower_message.startswith("запомни"):
         memory_text = clean_remember_text(clean_message)
         return RouteResult(Intent.REMEMBER, memory_text)
+    
+    if lower_message.startswith("/search "):
+        query = clean_message[len("/search "):].strip()
+        return RouteResult(Intent.SEARCH_MEMORY, query)
 
+    if lower_message.startswith("/forget "):
+        memory_id = clean_message[len("/forget "):].strip()
+        return RouteResult(Intent.FORGET_MEMORY, memory_id)
+    
     return RouteResult(Intent.CHAT, clean_message)

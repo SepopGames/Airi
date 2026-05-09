@@ -1,4 +1,4 @@
-from airi.memory import add_memory, get_recent_memories
+from airi.memory import add_memory, delete_memory, get_recent_memories, get_recent_memory_items, search_memories
 from airi.model import generate_text
 from airi.personality import SYSTEM_PROMPT
 from airi.history import add_message, clear_history, format_history
@@ -54,13 +54,55 @@ def generate_response(user_message: str) -> str:
         return response
 
     if route.intent == Intent.SHOW_MEMORY:
-        recent_memories = get_recent_memories()
+        memory_items = get_recent_memory_items()
 
-        if not recent_memories:
+        if not memory_items:
             return "Я пока ничего не помню."
 
-        memories_text = "\n".join(f"- {memory}" for memory in recent_memories)
+        memories_text = "\n".join(
+            f"- [{memory_id}] {text}"
+            for memory_id, text in memory_items
+        )
+
         response = f"Вот что я помню:\n{memories_text}"
+
+        add_message("user", clean_message)
+        add_message("airi", response)
+
+        return response
+    
+    if route.intent == Intent.SEARCH_MEMORY:
+        query = route.content
+
+        if not query:
+            return "Что искать в памяти? Напиши так: /search Саша"
+
+        memories = search_memories(query)
+
+        if not memories:
+            response = f"Я ничего не нашла в памяти по запросу: {query}"
+        else:
+            memories_text = "\n".join(f"- {memory}" for memory in memories)
+            response = f"Нашла в памяти по запросу '{query}':\n{memories_text}"
+
+        add_message("user", clean_message)
+        add_message("airi", response)
+
+        return response
+    
+    if route.intent == Intent.FORGET_MEMORY:
+        memory_id_text = route.content
+
+        if not memory_id_text.isdigit():
+            return "Напиши id воспоминания числом. Например: /forget 3"
+
+        memory_id = int(memory_id_text)
+        deleted = delete_memory(memory_id)
+
+        if deleted:
+            response = f"Забыла воспоминание с id {memory_id}."
+        else:
+            response = f"Я не нашла воспоминание с id {memory_id}."
 
         add_message("user", clean_message)
         add_message("airi", response)
