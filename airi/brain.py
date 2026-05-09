@@ -1,6 +1,7 @@
 from airi.memory import add_memory, get_recent_memories
 from airi.model import generate_text
 from airi.personality import SYSTEM_PROMPT
+from airi.history import add_message, format_history
 
 
 def build_prompt(user_message: str) -> str:
@@ -13,16 +14,18 @@ def build_prompt(user_message: str) -> str:
     else:
         memories_text = "- Пока нет воспоминаний."
 
+    dialogue_history = format_history()
     # Собираем учебный prompt из личности Airi, памяти и сообщения пользователя.
     prompt = f"""{SYSTEM_PROMPT}
-
-Последние воспоминания:
-{memories_text}
-
-Сообщение пользователя:
-{user_message}
-"""
-
+    [Долгосрочная память]
+    {memories_text}
+    [Последние сообщения диалога]
+    {dialogue_history}
+    [Текущее сообщение пользователя]
+    {user_message}
+    [Задача]
+    Ответь как Айри. Учитывай память и последние сообщения, но не выдумывай факты, которых нет.
+    """
     return prompt
 
 
@@ -39,7 +42,12 @@ def generate_response(user_message: str) -> str:
             return "Что именно запомнить? Ты дал команду, но не написал сам факт."
 
         add_memory(memory_text)
-        return f"Запомнила: {memory_text}"
+        response = f"Запомнила: {memory_text}"
+
+        add_message("user", clean_message)
+        add_message("airi", response)
+
+        return response
 
     # Вопрос про память пока обрабатываем здесь, без настоящей модели.
     if "что ты помнишь" in lower_message:
@@ -53,4 +61,9 @@ def generate_response(user_message: str) -> str:
 
     # Для обычных сообщений собираем prompt и передаем его в fake-модель.
     prompt = build_prompt(clean_message)
-    return generate_text(prompt)
+    response = generate_text(prompt)
+
+    add_message("user", clean_message)
+    add_message("airi", response)
+
+    return response
