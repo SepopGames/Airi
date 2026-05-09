@@ -2,6 +2,7 @@ from airi.memory import add_memory, get_recent_memories
 from airi.model import generate_text
 from airi.personality import SYSTEM_PROMPT
 from airi.history import add_message, clear_history, format_history
+from airi.router import Intent, route_message
 
 
 def build_prompt(user_message: str) -> str:
@@ -30,25 +31,16 @@ def build_prompt(user_message: str) -> str:
 
 
 def generate_response(user_message: str) -> str:
-    # Убираем лишние пробелы по краям, чтобы команды читались проще.
     clean_message = user_message.strip()
-    lower_message = clean_message.lower()
-    if lower_message == "/clear":
+
+    route = route_message(clean_message)
+
+    if route.intent == Intent.CLEAR_HISTORY:
         clear_history()
         return "Краткосрочную историю очистила. Начинаем с чистого листа."
 
-    if lower_message == "/memory":
-        recent_memories = get_recent_memories()
-
-        if not recent_memories:
-            return "Я пока ничего не помню."
-
-        memories_text = "\n".join(f"- {memory}" for memory in recent_memories)
-        return f"Вот что я помню:\n{memories_text}"
-    
-    # Команда "запомни" сохраняет текст после этого слова в память.
-    if lower_message.startswith("запомни"):
-        memory_text = clean_message[len("запомни") :].strip()
+    if route.intent == Intent.REMEMBER:
+        memory_text = route.content
 
         if not memory_text:
             return "Что именно запомнить? Ты дал команду, но не написал сам факт."
@@ -61,17 +53,20 @@ def generate_response(user_message: str) -> str:
 
         return response
 
-    # Вопрос про память пока обрабатываем здесь, без настоящей модели.
-    if "что ты помнишь" in lower_message:
+    if route.intent == Intent.SHOW_MEMORY:
         recent_memories = get_recent_memories()
 
         if not recent_memories:
             return "Я пока ничего не помню."
 
         memories_text = "\n".join(f"- {memory}" for memory in recent_memories)
-        return f"Вот что я помню:\n{memories_text}"
+        response = f"Вот что я помню:\n{memories_text}"
 
-    # Для обычных сообщений собираем prompt и передаем его в fake-модель.
+        add_message("user", clean_message)
+        add_message("airi", response)
+
+        return response
+
     prompt = build_prompt(clean_message)
     response = generate_text(prompt)
 
