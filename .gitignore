@@ -3,4 +3,14 @@ __pycache__/
 data/*.sqlite
 .env
 .venv/
+.venv_qwen_tts/
 personality.py
+data/voice_refs/
+data/tts_output/
+*.wav
+*.mp3
+
+# Local TTS experiments
+tools/test_xtts.py
+tools/test_qwen3_tts.py
+tools/test_qwen3_emotions.py

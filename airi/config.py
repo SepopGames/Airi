@@ -17,3 +17,24 @@ OLLAMA_OPTIONS = {
     "num_ctx": 8192,
     "repeat_penalty": 1.1,
 }
+
+# TTS-настройки.
+TTS_ENABLED = True
+TTS_PROVIDER = "qwen3"
+
+# Qwen3-TTS.
+QWEN_TTS_MODEL = "Qwen/Qwen3-TTS-12Hz-1.7B-Base"
+
+# Папки с локальными голосами и результатами.
+# Эти папки НЕ должны попадать на GitHub.
+QWEN_TTS_REF_DIR = "data/voice_refs/qwen"
+QWEN_TTS_OUTPUT_DIR = "data/tts_output/qwen3_runtime"
+
+# Эмоция по умолчанию.
+QWEN_TTS_DEFAULT_EMOTION = "neutral"
+
+# Эмоции, которые реально есть локально:
+# neutral.wav + neutral.txt
+# angry.wav + angry.txt
+# horny.wav + horny.txt
+QWEN_TTS_AVAILABLE_EMOTIONS = ["neutral", "angry", "horny"]
