@@ -1,16 +1,25 @@
+# Python
 __pycache__/
 *.pyc
-data/*.sqlite
-.env
+
+# Virtual environments
 .venv/
 .venv_qwen_tts/
-personality.py
+
+# Local databases / secrets
+data/*.sqlite
+.env
+
+# Voice data
 data/voice_refs/
 data/tts_output/
+data/stt_input/
 *.wav
 *.mp3
+*.flac
 
 # Local TTS experiments
 tools/test_xtts.py
 tools/test_qwen3_tts.py
 tools/test_qwen3_emotions.py
+tools/local_test_qwen_module.py
